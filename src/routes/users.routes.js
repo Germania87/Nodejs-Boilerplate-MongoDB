@@ -1,11 +1,21 @@
 import { Router } from "express";
+import UserController from "../controllers/users.controllers";
 
 const router = Router();
+const controller = new UserController();
 
-router.get("/", (request, response) => {
-  return response.status(200).json({
-    message: "users",
-  });
-});
+router.get("/", (request, response) => controller.all(request, response));
+router.post("/", (request, response) =>
+  controller.createDocument(request, response)
+);
+router.get("/:username", (request, response) =>
+  controller.getById(request, response)
+);
+router.put("/:username", (request, response) =>
+  controller.updateDocument(request, response)
+);
+router.delete("/:username", (request, response) =>
+  controller.deleteDocument(request, response)
+);
 
 export default router;
