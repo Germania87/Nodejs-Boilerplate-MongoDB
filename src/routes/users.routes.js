@@ -1,12 +1,14 @@
 import { Router } from "express";
 import UserController from "../controllers/users.controllers";
 import validation from "../middlewares/validation";
-import { createSchema } from "../validators/users.validators";
+import { allSchema, createSchema } from "../validators/users.validators";
 
 const router = Router();
 const controller = new UserController();
 
-router.get("/", (request, response) => controller.all(request, response));
+router.get("/", validation(allSchema), (request, response) =>
+  controller.all(request, response)
+);
 router.post("/", validation(createSchema), (request, response) =>
   controller.createDocument(request, response)
 );

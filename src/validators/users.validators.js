@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 
 /**
  * Schema para validar los queryparams del listado de usuarios
@@ -6,24 +6,17 @@ import { body } from "express-validator";
  * per_page -> int | min: 1
  */
 
-const createSchema = [
-  body("name")
-    .notEmpty()
-    .withMessage("name is required")
-    .isLength({ min: 3, max: 10 }),
-  body("last_name")
-    .notEmpty()
-    .withMessage("last_name is required")
-    .isLength({ min: 3, max: 20 }),
-  body("username")
-    .notEmpty()
-    .withMessage("username is required")
-    .isLength({ min: 3, max: 15 }),
-  body("email").notEmpty().withMessage("email is required").isEmail(),
-  body("password")
-    .notEmpty()
-    .withMessage("password is required")
-    .isLength({ min: 5, max: 16 }),
+const allSchema = [
+  query("page").isInt({ min: 1 }),
+  query("per_page").isInt({ min: 1 }),
 ];
 
-export { createSchema };
+const createSchema = [
+  body("name").notEmpty().isLength({ min: 3, max: 10 }),
+  body("last_name").notEmpty().isLength({ min: 3, max: 20 }),
+  body("username").notEmpty().isLength({ min: 3, max: 15 }),
+  body("email").notEmpty().isEmail(),
+  body("password").notEmpty().isLength({ min: 5, max: 16 }),
+];
+
+export { allSchema, createSchema };
