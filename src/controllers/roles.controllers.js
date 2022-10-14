@@ -1,33 +1,30 @@
-import users from "../models/users";
+import roles from "../models/roles";
 import { paginationFields, paginationResults } from "../helpers/pagination";
 
-class UserController {
+class RoleController {
   constructor() {
-    this.model = users;
+    this.model = roles;
   }
 
   async all(request, response) {
     try {
-      /**
-       * Paginación
-       * QueryParams: page, per_page
-       * - Sequelize
-       * count -> cantidad de filas
-       * rows -> filas solicitados
-       */
       const { page, per_page } = request.query;
       const { limit, offset } = paginationFields(page, per_page);
       const documents = await this.model
-        .find()
+        .find({
+          status: true,
+        })
         .populate([
           {
-            path: "role",
+            path: "users",
+            select: "-password",
           },
         ])
-        .select("-password")
         .limit(limit)
         .skip(offset);
-      const count = await this.model.countDocuments();
+      const count = await this.model.countDocuments({
+        status: true,
+      });
       return response
         .status(200)
         .json(paginationResults({ rows: documents, count }, page, per_page));
@@ -40,16 +37,11 @@ class UserController {
 
   async createDocument(request, response) {
     try {
-      const { name, last_name, username, email, password } = request.body;
+      const { name, code } = request.body;
       const document = this.model({
         name,
-        last_name,
-        username,
-        email,
-        password,
-        role_code: "USER",
+        code,
       });
-      await document.hashPassword();
       await document.save();
       return response.status(201).json(document);
     } catch (error) {
@@ -59,12 +51,12 @@ class UserController {
     }
   }
 
-  async getById(request, response) {
+  async getByField(request, response) {
     try {
-      const { username } = request.params;
+      const { code } = request.params;
 
       const document = await this.model.findOne({
-        username,
+        code,
       });
       return response.status(200).json(document);
     } catch (error) {
@@ -76,13 +68,13 @@ class UserController {
 
   async updateDocument(request, response) {
     try {
-      const { username } = request.params;
+      const { code } = request.params;
       const { body } = request;
 
-      await this.model.findOneAndUpdate({ username }, { ...body });
+      await this.model.findOneAndUpdate({ code }, { ...body });
 
       return response.status(200).json({
-        message: `User Update, Search -> ${username}`,
+        message: `Role Update, Search -> ${code}`,
       });
     } catch (error) {
       return response.status(500).json({
@@ -93,12 +85,12 @@ class UserController {
 
   async deleteDocument(request, response) {
     try {
-      const { username } = request.params;
+      const { code } = request.params;
 
-      await this.model.findOneAndUpdate({ username }, { status: false });
+      await this.model.findOneAndUpdate({ code }, { status: false });
 
       return response.status(200).json({
-        message: `User Delete, Search -> ${username}`,
+        message: `Role Delete, Search -> ${code}`,
       });
     } catch (error) {
       return response.status(500).json({
@@ -108,4 +100,4 @@ class UserController {
   }
 }
 
-export default UserController;
+export default RoleController;

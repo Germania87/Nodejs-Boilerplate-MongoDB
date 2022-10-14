@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 import { hashSync, genSaltSync } from "bcrypt";
 import { rounds } from "../config/auth";
 
@@ -26,6 +26,10 @@ const schema = new Schema(
       type: String,
       required: true,
     },
+    role_code: {
+      type: String,
+      required: true,
+    },
     status: {
       type: Boolean,
       default: true,
@@ -37,8 +41,18 @@ const schema = new Schema(
       createdAt: "created_at",
       updatedAt: "updated_at",
     },
+    toJSON: {
+      virtuals: true,
+    },
   }
 );
+
+schema.virtual("role", {
+  ref: "roles",
+  localField: "role_code",
+  foreignField: "code",
+  justOne: true,
+});
 
 schema.methods.hashPassword = async function () {
   let passwordHash = hashSync(this.password, genSaltSync(rounds));
