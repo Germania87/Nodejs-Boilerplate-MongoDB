@@ -1,4 +1,5 @@
 import users from "../models/users";
+import { paginationFields, paginationResults } from "../helpers/pagination";
 
 class UserController {
   constructor() {
@@ -7,12 +8,24 @@ class UserController {
 
   async all(request, response) {
     try {
+      /**
+       * Paginación
+       * QueryParams: page, per_page
+       * - Sequelize
+       * count -> cantidad de filas
+       * rows -> filas solicitados
+       */
+      const { page, per_page } = request.query;
+      const { limit, offset } = paginationFields(page, per_page);
       const documents = await this.model
-        .find({
-          status: true,
-        })
-        .select("-password");
-      return response.status(200).json(documents);
+        .find()
+        .select("-password")
+        .limit(limit)
+        .skip(offset);
+      const count = await this.model.countDocuments();
+      return response
+        .status(200)
+        .json(paginationResults({ rows: documents, count }, page, per_page));
     } catch (error) {
       return response.status(500).json({
         message: error.message,
