@@ -1,5 +1,5 @@
 import { Schema, model, Types } from "mongoose";
-import { hashSync, genSaltSync } from "bcrypt";
+import { hashSync, genSaltSync, compareSync } from "bcrypt";
 import { rounds } from "../config/auth";
 
 const schema = new Schema(
@@ -57,6 +57,10 @@ schema.virtual("role", {
 schema.methods.hashPassword = async function () {
   let passwordHash = hashSync(this.password, genSaltSync(rounds));
   this.password = passwordHash;
+};
+
+schema.methods.validatePassword = async function (password) {
+  return compareSync(password, this.password);
 };
 
 const users = model("users", schema);
