@@ -9,8 +9,11 @@ export default async () => {
       },
     },
     production: {
-      url: ``,
-      options: {},
+      url: `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+      options: {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
     },
   };
 
