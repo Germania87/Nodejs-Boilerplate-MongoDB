@@ -2,10 +2,12 @@ import { Router } from "express";
 import UserController from "../controllers/users.controllers";
 import validation from "../middlewares/validation";
 import { allSchema, createSchema } from "../validators/users.validators";
+import authentication from "../middlewares/authentication";
 
 const router = Router();
 const controller = new UserController();
 
+router.use(authentication);
 router.get("/", validation(allSchema), (request, response) =>
   controller.all(request, response)
 );

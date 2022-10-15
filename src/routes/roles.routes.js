@@ -8,10 +8,12 @@ import {
   updateSchema,
   deleteSchema,
 } from "../validators/roles.validators";
+import authentication from "../middlewares/authentication";
 
 const router = Router();
 const controller = new RoleController();
 
+router.use(authentication);
 router.get("/", validation(allSchema), (request, response) =>
   controller.all(request, response)
 );
